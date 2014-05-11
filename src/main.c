@@ -17,14 +17,21 @@ void printInfo(struct fat32_Info *info)
     printf("Total sectors: %u\n", info->numberOfSectors);
 }
 
-void printFileEntry(const u8 entry[32])
+void printFileEntry(const struct fat32_FileEntry *entry)
 {
     printf("Name: ");
-    fwrite(entry, 1, 8, stdout);
+    fwrite(entry->name, 1, 8, stdout);
     printf(" Ext: ");
-    fwrite(&entry[0x08], 1, 3, stdout);
-    printf(" Attrib: %x", entry[0x0B]);
-    printf(" cluster: %u\n", *((u16*)&entry[FAT32_FILE_FILEFIRSTCLUSTER0]) | ((*(u16*)&entry[FAT32_FILE_FILEFIRSTCLUSTER1])<<8));
+    fwrite(entry->extension, 1, 3, stdout);
+
+    if (entry->attributs & 0x10) //Directory
+        printf(" Directory");
+    else
+        printf(" File"); //File
+
+    printf(" Attrib: %x", entry->attributs);
+    printf(" cluster: %u", entry->firstCluster);
+    printf(" size: %u\n", entry->sizeInBytes);
 }
 
 int main(int argc, char **argv)
@@ -61,34 +68,25 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    for (size_t i=0;i<16;i++)
+    puts("Files in root directory:");
+
+    const u8 *ptr = buffer;
+    struct fat32_FileEntry entry;
+
+    while (1)
     {
-        const u8 *ptr = &buffer[i*32];
+        fat32_readFileEntry(ptr, &entry);
+        ptr += FILEENTRY_SIZE;
 
-        //empty entry
-        if (ptr[0] == 0x00 || ptr[0] == 0xE5)
+        //check if end
+        if (entry.name[0] == 0x00)
+            break;
+
+        //check if empty entry
+        if (entry.name[0] == 0xE5)
             continue;
 
-        //only dirs
-        if (!(ptr[FAT32_FILE_FILEATTRIBUTS] & FAT32_ATTRIB_DIRECTORY))
-            continue;
-
-        printFileEntry(ptr);
-
-        puts("Enter directory...");
-        u32 offset = info.sectorsPerCluster * ((*(u16*)&ptr[FAT32_FILE_FILEFIRSTCLUSTER0]) | ((*(u16*)&ptr[FAT32_FILE_FILEFIRSTCLUSTER1])<<8)) * info.bytesPerSector;
-        pread(device, fileBuffer, 512, offset);
-
-        for (size_t u=0;u<16;u++)
-        {
-            const u8 *ptrDir = &fileBuffer[u*32];
-
-            //empty entry
-            if (ptrDir[0] == 0x00 || ptrDir[0] == 0xE5)
-                continue;
-
-            printFileEntry(ptrDir);
-        }
+        printFileEntry(&entry);
     }
 
     close(device);

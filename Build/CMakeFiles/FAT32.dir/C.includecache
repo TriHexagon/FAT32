@@ -10,15 +10,9 @@
 stdint.h
 -
 
-/home/christopher/Dokumente/C/FAT32/src/main.c
-stdio.h
--
-string.h
--
-fcntl.h
--
-unistd.h
--
+/home/christopher/Dokumente/C/FAT32/src/fat32.c
 fat32.h
 /home/christopher/Dokumente/C/FAT32/src/fat32.h
+string.h
+-
 
