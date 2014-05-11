@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../inc/fat32.h
+stdint.h
+-
+
+/home/christopher/Dokumente/C/FAT32/src/main.c
+stdio.h
+-
+string.h
+-
+fcntl.h
+-
+unistd.h
+-
+fat32.h
+/home/christopher/Dokumente/C/FAT32/src/fat32.h
+

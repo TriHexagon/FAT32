@@ -1,0 +1,1 @@
+/usr/bin/cc  -g -std=gnu99    CMakeFiles/FAT32.dir/src/main.c.o CMakeFiles/FAT32.dir/src/fat32.c.o  -o FAT32 -rdynamic 
