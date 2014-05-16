@@ -1,2 +1,5 @@
 # Test FAT32 image file
 *.img
+
+# Object Files
+*.o

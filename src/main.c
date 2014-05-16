@@ -5,7 +5,7 @@
 #include "fat32.h"
 
 u8 buffer[512];
-u8 fileBuffer[512];
+//u8 fileBuffer[512];
 
 void printInfo(struct fat32_Info *info)
 {

@@ -1,6 +1,7 @@
 #ifndef FAT32_H
 #define FAT32_H
 
+#include <stdbool.h>
 #include <stdint.h>
 
 typedef uint8_t u8;
@@ -12,6 +13,7 @@ typedef int16_t s16;
 typedef int32_t s32;
 
 #define FILEENTRY_SIZE 32
+#define FAT32_HIGHLEVEL
 
 struct fat32_Info
 {
@@ -43,9 +45,9 @@ enum FAT32_INFO
 
 enum FAT32_FILE
 {
-    FAT32_FILE_FILENAME = 0x00, FAT32_FILE_FILEEXT = 0x08, FAT32_FILE_FILEATTRIBUTS = 0x0B,
-    FAT32_FILE_FILECREATIONDATE = 0x0D, FAT32_FILE_FILELASTACCESSDATE = 0x12, FAT32_FILE_FILEFIRSTCLUSTER1 = 0x14,
-    FAT32_FILE_FILELASTCHANGEDATE = 0x16, FAT32_FILE_FILEFIRSTCLUSTER0 = 0x1A, FAT32_FILE_FILESIZE = 0x1C
+    FAT32_FILE_NAME = 0x00, FAT32_FILE_EXT = 0x08, FAT32_FILE_ATTRIBUTS = 0x0B,
+    FAT32_FILE_CREATIONDATE = 0x0D, FAT32_FILE_LASTACCESSDATE = 0x12, FAT32_FILE_FIRSTCLUSTER1 = 0x14,
+    FAT32_FILE_LASTCHANGEDATE = 0x16, FAT32_FILE_FIRSTCLUSTER0 = 0x1A, FAT32_FILE_SIZE = 0x1C
 };
 
 enum FAT32_FILE_ATTRIB
@@ -57,5 +59,21 @@ enum FAT32_FILE_ATTRIB
 
 void fat32_readInfo(const void *firstSector, struct fat32_Info *info);
 void fat32_readFileEntry(const void *data, struct fat32_FileEntry *entry);
+
+#ifdef FAT32_HIGHLEVEL
+
+//Callback function
+typedef bool (*fat32_ReadSectorFunc) (void*, u32, size_t);
+typedef bool (*fat32_WriteSectorFunc) (void*, u32, size_t);
+
+bool fat32_setReader(fat32_ReadSectorFunc func);
+bool fat32_setWriter(fat32_WriteSectorFunc func);
+
+//out: info
+bool fat32_init(fat32_ReadSectorFunc reader, fat32_WriteSectorFunc writer, struct fat32_Info* info);
+
+//returns 0 by error
+u32 fat32_openFile(struct fat32_Info *info, const char *name);
+#endif // FAT32_HIGHLEVEL
 
 #endif
